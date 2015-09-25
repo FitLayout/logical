@@ -56,7 +56,10 @@ public class LogicalTreeBuilder extends BaseLogicalTreeProvider
     @Override
     public LogicalAreaTree createLogicalTree(AreaTree areaTree)
     {
-        return null;
+        LogicalAreaTree ltree = new PresentationLogicalTree(areaTree);
+        
+        
+        return ltree;
     }
     
 }
