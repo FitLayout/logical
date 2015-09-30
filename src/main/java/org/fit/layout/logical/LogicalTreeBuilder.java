@@ -64,8 +64,9 @@ public class LogicalTreeBuilder extends BaseLogicalTreeProvider
     {
         PresentationLogicalTree ltree = new PresentationLogicalTree(areaTree);
         
-        this.fa = new VisualFeatureExtractor();
-        this.la = new LayoutAnalyzer(areaTree);
+        fa = new VisualFeatureExtractor();
+        fa.setTree(areaTree.getRoot());
+        la = new LayoutAnalyzer(areaTree);
         computeAreaMarkedness(areaTree.getRoot());
         final LogicalArea root = recursiveCreateLogicalStructure(areaTree.getRoot());
         ltree.setRoot(root);
@@ -216,7 +217,8 @@ public class LogicalTreeBuilder extends BaseLogicalTreeProvider
      */
     protected void computeAreaMarkedness(Area root)
     {
-        root.addAttribute(new AreaAttributes(fa.getMarkedness(root), la.detectLayoutType(root)));
+       // root.addAttribute(new AreaAttributes(fa.getMarkedness(root), la.detectLayoutType(root)));
+        root.addAttribute(new AreaAttributes(fa.getMarkedness(root), LayoutAnalyzer.LayoutType.NORMAL));
         for (int i = 0; i < root.getChildCount(); i++)
             computeAreaMarkedness(root.getChildArea(i));
     }
