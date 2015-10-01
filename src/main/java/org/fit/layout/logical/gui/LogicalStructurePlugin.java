@@ -6,6 +6,7 @@
 package org.fit.layout.logical.gui;
 
 import java.awt.Font;
+import java.util.Locale;
 
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
@@ -59,7 +60,8 @@ public class LogicalStructurePlugin implements BrowserPlugin, AreaSelectionListe
         final AreaAttributes attrs = area.getAttribute(AreaAttributes.class);
         if (attrs != null)
         {
-            getMarkednessText().setText(attrs.getMarkedness() + " / " + attrs.getLayoutType());
+            final String mtext = String.format(Locale.US, "%1.2f", attrs.getMarkedness());
+            getMarkednessText().setText(mtext + " / " + attrs.getLayoutType());
         }
         else
             getMarkednessText().setText("---");
