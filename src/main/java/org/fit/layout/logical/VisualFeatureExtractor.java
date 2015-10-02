@@ -15,4 +15,11 @@ import org.fit.layout.classify.articles.ArticleFeatureExtractor;
 public class VisualFeatureExtractor extends ArticleFeatureExtractor
 {
     
+    public VisualFeatureExtractor()
+    {
+        super();
+        //setWeights(new double[]{1000.0, 2.0, 0.5, 0.0, 0.0, 1.0, 0.5, 100.0});
+        setWeights(new double[]{1000.0, 2.0, 0.5, 0.0, 0.0, 0.0, 0.0, 100.0});
+    }
+    
 }

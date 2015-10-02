@@ -136,9 +136,10 @@ public class LogicalTreeBuilder extends BaseLogicalTreeProvider
     {
         //TODO: should the children be sorted in any way?
         //TODO: better flow break detection?
-        if (substat.pos.getY1() < curstat.pos.getY2() - 10)  //flow break - go to the parent, 10 pixels tollerance for now
+        if (substat.pos.getY2() < curstat.pos.getY1() - 10)  //flow break - go to the parent, 10 pixels tollerance for now
         {
-            //System.out.println("break: 1=" + current + " 2=" + substat.node);
+            System.out.println("break: 1=" + curstat.node + " 2=" + substat.node);
+            System.out.println("  pos: 1=" + curstat.pos + " 2=" + substat.pos);
             return root;
         }
         else //normal flow, compare the levels
