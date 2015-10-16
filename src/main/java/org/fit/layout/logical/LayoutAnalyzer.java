@@ -83,7 +83,7 @@ public class LayoutAnalyzer
     protected boolean isTable(Area area, List<Area> nodes, int startchild)
     {
         AreaTopology grid = area.getTopology();
-        if (grid.getWidth() >= 2 && grid.getHeight() >= 2)
+        if (grid.getTopologyWidth() >= 2 && grid.getTopologyHeight() >= 2)
         {
             TableInfo stat = collectTableStats(area, nodes, startchild, false);
             if (isValidTable(stat))
@@ -118,7 +118,7 @@ public class LayoutAnalyzer
     
     protected TableInfo collectTableStats(Area parent, List<Area> nodes, int startchild, boolean check)
     {
-        int cnt = parent.getTopology().getWidth();
+        int cnt = parent.getTopology().getTopologyWidth();
         TableInfo stat = new TableInfo(cnt);
         stat.lastgood = startchild; 
         
@@ -250,7 +250,7 @@ public class LayoutAnalyzer
      */
     public int findListEnd(Area area, List<Area> nodes, int startchild)
     {
-        ListInfo stat = new ListInfo(area.getTopology().getHeight());
+        ListInfo stat = new ListInfo(area.getTopology().getTopologyHeight());
         if (nodes.size() > 0 && nodes.get(0).toString().contains("Home"))
             System.out.println("jo!");
         
@@ -273,7 +273,7 @@ public class LayoutAnalyzer
             }
         }
         //check the rows and styles
-        ListInfo newstat = new ListInfo(area.getTopology().getHeight());
+        ListInfo newstat = new ListInfo(area.getTopology().getTopologyHeight());
         for (int i = startchild; i < nodes.size(); i++)
         {
             Area sub = nodes.get(i);

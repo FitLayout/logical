@@ -218,8 +218,8 @@ public class LogicalTreeBuilder extends BaseLogicalTreeProvider
      */
     protected void computeAreaMarkedness(Area root)
     {
-       // root.addAttribute(new AreaAttributes(fa.getMarkedness(root), la.detectLayoutType(root)));
-        root.addAttribute(new AreaAttributes(fa.getMarkedness(root), LayoutAnalyzer.LayoutType.NORMAL));
+        root.addAttribute(new AreaAttributes(fa.getMarkedness(root), la.detectLayoutType(root)));
+        //root.addAttribute(new AreaAttributes(fa.getMarkedness(root), LayoutAnalyzer.LayoutType.NORMAL));
         for (int i = 0; i < root.getChildCount(); i++)
             computeAreaMarkedness(root.getChildArea(i));
     }
