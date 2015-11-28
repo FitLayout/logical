@@ -91,63 +91,61 @@ public class LayoutSplitOperator extends BaseOperator
     private void findTables(Area root)
     {
         //find table bounds
-        Vector<Integer> breaks = new Vector<Integer>();
-        for (int i = 0; i < root.getChildCount(); i++)
+        Vector<StructInfo> parts = new Vector<StructInfo>();
+        int lastpos = -1;
+        int i;
+        for (i = 0; i < root.getChildCount(); i++)
         {
             int tend = la.findTableEnd(root, root.getChildAreas(), i);
             if (tend > i + 1) //found a table
             {
+                //close previous sequence (if any)
+                if (i > lastpos + 1)
+                    parts.add(new StructInfo(lastpos + 1, i, 'N'));
                 //mark the beginning and end
-                if (i > 0)
-                    breaks.add(i);
-                if (tend + 1 < root.getChildCount())
-                    breaks.add(tend + 1);
+                parts.add(new StructInfo(i, tend + 1, 'T'));
                 //skip the table
                 i = tend;
+                lastpos = i;
             }
             else
             {
                 int lend = la.findListEnd(root, root.getChildAreas(), i);
                 if (lend > i + 2) //found a list
                 {
+                    //close previous sequence (if any)
+                    if (i > lastpos + 1)
+                        parts.add(new StructInfo(lastpos + 1, i, 'N'));
                     //mark the beginning and end
-                    if (i > 0)
-                        breaks.add(i);
-                    if (lend + 1 < root.getChildCount())
-                        breaks.add(lend + 1);
+                    parts.add(new StructInfo(i, lend + 1, 'L'));
                     //skip the list
                     i = lend;
+                    lastpos = i;
                 }
             }
         }
+        //close last sequence (if any)
+        if (i > lastpos + 1)
+            parts.add(new StructInfo(lastpos + 1, i, 'N'));
         //split the area with breaks
-        if (!breaks.isEmpty())
+        if (parts.size() > 1)
         {
-            System.out.println(root + " found " + breaks.size() + " breaks");
-            Area[][] regions = new Area[breaks.size() + 1][];
-            int strt = 0;
-            int i = 0;
-            for (int end : breaks)
+            System.out.println(root + " found " + parts.size() + " structures");
+            //collect areas
+            for (StructInfo part : parts)
             {
-                regions[i] = new Area[end - strt];
-                for (int j = 0; j < end - strt; j++)
-                    regions[i][j] = root.getChildArea(strt + j);
-                strt = end;
-                i++;
+                for (int ai = 0; ai < part.length(); ai++)
+                    part.areas[ai] = root.getChildArea(ai + part.start);  
             }
-            int end = root.getChildCount();
-            regions[i] = new Area[end - strt];
-            for (int j = 0; j < end - strt; j++)
-                regions[i][j] = root.getChildArea(strt + j);
-
-            for (Area[] sub : regions)
+            //create super areas
+            for (StructInfo part : parts)
             {
-                createSubArea(root, sub);
+                createSubArea(root, part.areas, part.type);
             }
         }
     }
     
-    private Area createSubArea(Area root, Area[] sub)
+    private Area createSubArea(Area root, Area[] sub, char type)
     {
         if (sub.length > 1)
         {
@@ -163,12 +161,38 @@ public class LayoutSplitOperator extends BaseOperator
                     bounds.expandToEnclose(area.getTopology().getPosition());
             }
             
-            Area grp = root.createSuperArea(bounds, region, "<areaT>");
+            Area grp = root.createSuperArea(bounds, region, "<area" + type +">");
             return grp;
         }
         else
             return null;
     }
     
+    class StructInfo
+    {
+        public int start;
+        public int end;
+        public char type;
+        public Area[] areas;
+        
+        public StructInfo(int start, int end, char type)
+        {
+            this.start = start;
+            this.end = end;
+            this.type = type;
+            areas = new Area[end - start];
+        }
+        
+        public int length()
+        {
+            return end - start;
+        }
+        
+        @Override
+        public String toString()
+        {
+            return "<" + start + ", " + end  + " " + type + ">";
+        }
+    }
     
 }
