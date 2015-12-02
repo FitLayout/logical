@@ -99,6 +99,7 @@ public class LayoutSplitOperator extends BaseOperator
             int tend = la.findTableEnd(root, root.getChildAreas(), i);
             if (tend > i + 1) //found a table
             {
+                System.out.println("found a table " + (i) + ".." + tend);
                 //close previous sequence (if any)
                 if (i > lastpos + 1)
                     parts.add(new StructInfo(lastpos + 1, i, 'N'));

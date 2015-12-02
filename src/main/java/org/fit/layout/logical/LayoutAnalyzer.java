@@ -118,28 +118,35 @@ public class LayoutAnalyzer
     
     protected TableInfo collectTableStats(Area parent, List<Area> nodes, int startchild, boolean check)
     {
-        int cnt = parent.getTopology().getTopologyWidth();
-        TableInfo stat = new TableInfo(cnt);
+        TableInfo stat = new TableInfo(parent.getTopology().getTopologyWidth(), parent.getTopology().getTopologyHeight());
         stat.lastgood = startchild; 
+        if (nodes.get(startchild).getId() == 1327)
+            System.out.println("jo!");
+        else
+            return stat;
         
         //gather the statistics about the grid positions
         for (int cur = startchild; cur < nodes.size(); cur++)
         {
-            Rectangular gp = nodes.get(cur).getTopology().getPosition();
-            int x1 = gp.getX1();
-            int x2 = gp.getX2() + 1; //it ends after the cell
-            int y1 = gp.getY1();
-            //update maximal/minimal Y1
-            stat.updateY1(y1);
-            //update columns
-            stat.updateCols(x1, x2);
-            //check the status after trying at least some rows
-            if (check && stat.maxY1 - stat.minY1 > 2)
+            System.out.println("Trying " + cur + " " + nodes.get(cur));
+            Area area = nodes.get(cur);
+            boolean fits = stat.putToGrid(area);
+            if (check)
             {
-                if (isValidTableStart(stat))
-                    stat.lastgood = cur;
+                if (fits)
+                {
+                    System.out.println("fits");
+                    if (stat.getRowCount() > 1)
+                    {
+                        System.out.println("valid");
+                        stat.lastgood = cur;
+                    }
+                }
                 else
+                {
+                    System.out.println("invalid");
                     break; //table no more valid, stop it
+                }
             }
         }
         return stat;
@@ -152,7 +159,7 @@ public class LayoutAnalyzer
      */
     protected boolean isValidTable(TableInfo stat)
     {
-        int yspan = stat.maxY1 - stat.minY1;
+        int yspan = stat.getRowCount();
         int cols = countValidColumns(stat.cols, 2, 2);
         return yspan >= 3 && cols >= 2;
     }
@@ -192,33 +199,53 @@ public class LayoutAnalyzer
     protected class TableInfo
     {
         /** numbers of areas in grid columns */
-        public int[] cols;
-        /** minimal Y1 of the areas */
-        public int minY1;
-        /** maximal Y1 of the areas */
-        public int maxY1;
+        private int[] cols;
+        /** numbers of areas in grid rows */
+        private int[] rows;
         /** last child where the table was acceptable */
         public int lastgood;
         
-        public TableInfo(int numcols)
+        public TableInfo(int numcols, int numrows)
         {
-            minY1 = -1;
-            maxY1 = -1;
             cols = new int[numcols];
             for (int i = 0; i < numcols; i++)
                 cols[i] = 0;
+            rows = new int[numrows];
+            for (int i = 0; i < numrows; i++)
+                rows[i] = 0;
         }
         
-        /**
-         * Updates the maximal/minimal Y1 with a new value
-         * @param y1 the new value to be considered
-         */
-        public void updateY1(int y1)
+        public int getRowCount()
         {
-            if (minY1 == -1 || y1 < minY1)
-                minY1 = y1;
-            if (y1 > maxY1)
-                maxY1 = y1;
+            int cnt = 0;
+            for (int i = 0; i < rows.length; i++)
+            {
+                if (rows[i] > 0)
+                    cnt++;
+            }
+            return cnt;
+        }
+        
+        public int getColCount()
+        {
+            int cnt = 0;
+            for (int i = 0; i < cols.length; i++)
+            {
+                if (cols[i] > 0)
+                    cnt++;
+            }
+            return cnt;
+        }
+        
+        public boolean putToGrid(Area area)
+        {
+            Rectangular gp = area.getTopology().getPosition();
+            int x1 = gp.getX1();
+            int x2 = gp.getX2();
+            int y1 = gp.getY1();
+            int y2 = gp.getY2();
+            
+            return updateCols(x1, x2) && updateRows(y1, y2);
         }
         
         /**
@@ -226,15 +253,39 @@ public class LayoutAnalyzer
          * @param x1 start x coordinate of the new area
          * @param x2 end x coordinate of the new area
          */
-        public void updateCols(int x1, int x2)
+        private boolean updateCols(int x1, int x2)
         {
+            boolean ret = true;
             //increase the number of items starting at this position (when not disabled)
             if (cols[x1] != -1)
                 cols[x1]++;
+            else
+                ret = false;
             //disable all positions that are covered by this child
             for (int j = x1 + 1; j < x2; j++)
                 cols[j] = -1;
+            return ret;
         }
+        
+        /**
+         * Updates the maximal/minimal Y1 with a new value
+         * @param y1 the new value to be considered
+         */
+        private boolean updateRows(int y1, int y2)
+        {
+            boolean ret = true;
+            //increase the number of items starting at this position (when not disabled)
+            if (rows[y1] != -1)
+                rows[y1]++;
+            else
+                ret = false;
+            //disable all positions that are covered by this child
+            for (int j = y1 + 1; j < y2; j++)
+                rows[j] = -1;
+            return ret;
+        }
+        
+        
     }
     
     //==== LISTS =========================================================================
