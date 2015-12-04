@@ -92,38 +92,45 @@ public class LayoutSplitOperator extends BaseOperator
     {
         //find table bounds
         Vector<StructInfo> parts = new Vector<StructInfo>();
+        int lasty2 = -1;
         int lastpos = -1;
         int i;
         for (i = 0; i < root.getChildCount(); i++)
         {
-            int tend = la.findTableEnd(root, root.getChildAreas(), i);
-            if (tend > i + 1) //found a table
+            Area curchild = root.getChildArea(i);
+            if (curchild.getY1() >= lasty2) //line break detection
             {
-                System.out.println("found a table " + (i) + ".." + tend);
-                //close previous sequence (if any)
-                if (i > lastpos + 1)
-                    parts.add(new StructInfo(lastpos + 1, i, 'N'));
-                //mark the beginning and end
-                parts.add(new StructInfo(i, tend + 1, 'T'));
-                //skip the table
-                i = tend;
-                lastpos = i;
-            }
-            else
-            {
-                int lend = la.findListEnd(root, root.getChildAreas(), i);
-                if (lend > i + 2) //found a list
+                System.out.println("Line break: " + curchild);
+                int tend = la.findTableEnd(root, root.getChildAreas(), i);
+                if (tend > i + 1) //found a table
                 {
+                    System.out.println("found a table " + (i) + ".." + tend);
                     //close previous sequence (if any)
                     if (i > lastpos + 1)
                         parts.add(new StructInfo(lastpos + 1, i, 'N'));
                     //mark the beginning and end
-                    parts.add(new StructInfo(i, lend + 1, 'L'));
-                    //skip the list
-                    i = lend;
+                    parts.add(new StructInfo(i, tend + 1, 'T'));
+                    //skip the table
+                    i = tend;
                     lastpos = i;
                 }
+                else
+                {
+                    int lend = la.findListEnd(root, root.getChildAreas(), i);
+                    if (lend > i + 2) //found a list
+                    {
+                        //close previous sequence (if any)
+                        if (i > lastpos + 1)
+                            parts.add(new StructInfo(lastpos + 1, i, 'N'));
+                        //mark the beginning and end
+                        parts.add(new StructInfo(i, lend + 1, 'L'));
+                        //skip the list
+                        i = lend;
+                        lastpos = i;
+                    }
+                }
             }
+            lasty2 = curchild.getY2();
         }
         //close last sequence (if any)
         if (i > lastpos + 1)

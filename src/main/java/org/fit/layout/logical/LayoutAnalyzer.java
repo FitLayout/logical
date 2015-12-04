@@ -86,44 +86,28 @@ public class LayoutAnalyzer
         if (grid.getTopologyWidth() >= 2 && grid.getTopologyHeight() >= 2)
         {
             TableInfo stat = collectTableStats(area, nodes, startchild, false);
-            if (isValidTable(stat))
+            if (stat.isValidTable())
             {
-                int[] pos = findTableGridPositions(stat);
+                int[] pos = stat.findTableGridPositions();
                 System.out.print(area + " positions :");
                 for (int i : pos)
                     System.out.print(" " + i);
                 System.out.println();
             }
-            return isValidTable(stat);
+            return stat.isValidTable();
         }
         else
             return false;
-    }
-    
-    protected int[] findTableGridPositions(TableInfo stat)
-    {
-        //count the positions where there are more items and they're not disabled
-        int found = countValidColumns(stat.cols, 2, 2);
-        //return the indices of the columns found
-        int[] ret = new int[found];
-        int f = 0;
-        for (int i = 0; i < stat.cols.length; i++)
-        {
-            if (stat.cols[i] >= 2)
-                ret[f++] = i;
-        }
-        
-        return ret;
     }
     
     protected TableInfo collectTableStats(Area parent, List<Area> nodes, int startchild, boolean check)
     {
         TableInfo stat = new TableInfo(parent.getTopology().getTopologyWidth(), parent.getTopology().getTopologyHeight());
         stat.lastgood = startchild; 
-        if (nodes.get(startchild).getId() == 1327)
+       /* if (nodes.get(startchild).getId() == 1327)
             System.out.println("jo!");
         else
-            return stat;
+            return stat;*/
         
         //gather the statistics about the grid positions
         for (int cur = startchild; cur < nodes.size(); cur++)
@@ -138,155 +122,21 @@ public class LayoutAnalyzer
                     System.out.println("fits");
                     if (stat.getRowCount() > 1)
                     {
-                        System.out.println("valid");
-                        stat.lastgood = cur;
+                        if (stat.getColCount() > 1 && stat.isValidTableStart())
+                            stat.lastgood = cur;
                     }
                 }
                 else
                 {
-                    System.out.println("invalid");
                     break; //table no more valid, stop it
                 }
             }
         }
+        if (!stat.isValidTable())
+            stat.lastgood = startchild; //not a valid table; revert
         return stat;
     }
 
-    /**
-     * Checks if the whole table is acceptable.
-     * @param stat
-     * @return
-     */
-    protected boolean isValidTable(TableInfo stat)
-    {
-        int yspan = stat.getRowCount();
-        int cols = countValidColumns(stat.cols, 2, 2);
-        return yspan >= 3 && cols >= 2;
-    }
-    
-    /**
-     * Checks if this is an acceptable beginning of a table
-     * @param stat
-     * @return
-     */
-    protected boolean isValidTableStart(TableInfo stat)
-    {
-        int c1 = countValidColumns(stat.cols, 1, 1); //at least two columns with one occurence
-        int c2 = countValidColumns(stat.cols, 1, 2); //one of them (and not the first one) should have at least 2 occurences
-        return (c1 >= 2 && c2 >= 2); 
-    }
-    
-    /**
-     * Counts valid columns detected in the table. The valid column must contain at least a specified number of occurences.
-     * @param cols The column occurence counts
-     * @param min1 Minimal number of occurences to consider the first column to be valid
-     * @param min2 Minimal number of occurences to consider the remaining columns to be valid
-     * @return Number of valid columns
-     */
-    protected int countValidColumns(int[] cols, int min1, int min2)
-    {
-        int found = 0;
-        for (int i = 0; i < cols.length; i++)
-        {
-            if ((found == 0 && cols[i] >= min1) || (found > 0 && cols[i] >= min2))
-                found++;
-        }
-        return found;
-    }
-    
-    //===============================================================================
-    
-    protected class TableInfo
-    {
-        /** numbers of areas in grid columns */
-        private int[] cols;
-        /** numbers of areas in grid rows */
-        private int[] rows;
-        /** last child where the table was acceptable */
-        public int lastgood;
-        
-        public TableInfo(int numcols, int numrows)
-        {
-            cols = new int[numcols];
-            for (int i = 0; i < numcols; i++)
-                cols[i] = 0;
-            rows = new int[numrows];
-            for (int i = 0; i < numrows; i++)
-                rows[i] = 0;
-        }
-        
-        public int getRowCount()
-        {
-            int cnt = 0;
-            for (int i = 0; i < rows.length; i++)
-            {
-                if (rows[i] > 0)
-                    cnt++;
-            }
-            return cnt;
-        }
-        
-        public int getColCount()
-        {
-            int cnt = 0;
-            for (int i = 0; i < cols.length; i++)
-            {
-                if (cols[i] > 0)
-                    cnt++;
-            }
-            return cnt;
-        }
-        
-        public boolean putToGrid(Area area)
-        {
-            Rectangular gp = area.getTopology().getPosition();
-            int x1 = gp.getX1();
-            int x2 = gp.getX2();
-            int y1 = gp.getY1();
-            int y2 = gp.getY2();
-            
-            return updateCols(x1, x2) && updateRows(y1, y2);
-        }
-        
-        /**
-         * Updates the column info with the new area span
-         * @param x1 start x coordinate of the new area
-         * @param x2 end x coordinate of the new area
-         */
-        private boolean updateCols(int x1, int x2)
-        {
-            boolean ret = true;
-            //increase the number of items starting at this position (when not disabled)
-            if (cols[x1] != -1)
-                cols[x1]++;
-            else
-                ret = false;
-            //disable all positions that are covered by this child
-            for (int j = x1 + 1; j < x2; j++)
-                cols[j] = -1;
-            return ret;
-        }
-        
-        /**
-         * Updates the maximal/minimal Y1 with a new value
-         * @param y1 the new value to be considered
-         */
-        private boolean updateRows(int y1, int y2)
-        {
-            boolean ret = true;
-            //increase the number of items starting at this position (when not disabled)
-            if (rows[y1] != -1)
-                rows[y1]++;
-            else
-                ret = false;
-            //disable all positions that are covered by this child
-            for (int j = y1 + 1; j < y2; j++)
-                rows[j] = -1;
-            return ret;
-        }
-        
-        
-    }
     
     //==== LISTS =========================================================================
     
