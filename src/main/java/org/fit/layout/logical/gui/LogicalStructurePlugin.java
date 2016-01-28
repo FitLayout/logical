@@ -57,11 +57,16 @@ public class LogicalStructurePlugin implements BrowserPlugin, AreaSelectionListe
     @Override
     public void areaSelected(Area area)
     {
-        final AreaAttributes attrs = area.getUserAttribute(AreaAttributes.class);
-        if (attrs != null)
+        if (area != null)
         {
-            final String mtext = String.format(Locale.US, "%1.2f", attrs.getMarkedness());
-            getMarkednessText().setText(mtext + " / " + attrs.getLayoutType());
+            final AreaAttributes attrs = area.getUserAttribute(AreaAttributes.class);
+            if (attrs != null)
+            {
+                final String mtext = String.format(Locale.US, "%1.2f", attrs.getMarkedness());
+                getMarkednessText().setText(mtext + " / " + attrs.getLayoutType());
+            }
+            else
+                getMarkednessText().setText("---");
         }
         else
             getMarkednessText().setText("---");
