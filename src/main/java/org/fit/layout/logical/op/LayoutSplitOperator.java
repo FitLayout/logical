@@ -53,6 +53,12 @@ public class LayoutSplitOperator extends BaseOperator
     }
 
     @Override
+    public String getCategory()
+    {
+        return "logical";
+    }
+
+    @Override
     public String[] getParamNames()
     {
         return paramNames;
