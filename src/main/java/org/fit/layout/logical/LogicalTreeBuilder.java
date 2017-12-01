@@ -45,18 +45,6 @@ public class LogicalTreeBuilder extends BaseLogicalTreeProvider
         return "Logical structure builder based on visual presentation of the content elements";
     }
 
-    @Override
-    public String[] getParamNames()
-    {
-        return new String[0];
-    }
-
-    @Override
-    public ValueType[] getParamTypes()
-    {
-        return new ValueType[0];
-    }
-
     //====================================================================================
     
     @Override

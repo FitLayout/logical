@@ -22,10 +22,6 @@ import org.fit.layout.model.Rectangular;
  */
 public class LayoutSplitOperator extends BaseOperator
 {
-
-    protected final String[] paramNames = { };
-    protected final ValueType[] paramTypes = { };
-    
     private LayoutAnalyzer la;
     
     public LayoutSplitOperator()
@@ -58,18 +54,6 @@ public class LayoutSplitOperator extends BaseOperator
         return "logical";
     }
 
-    @Override
-    public String[] getParamNames()
-    {
-        return paramNames;
-    }
-
-    @Override
-    public ValueType[] getParamTypes()
-    {
-        return paramTypes;
-    }
-    
     //==============================================================================
 
     @Override
