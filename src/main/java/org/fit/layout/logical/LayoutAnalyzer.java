@@ -70,10 +70,10 @@ public class LayoutAnalyzer
         else //not the whole area
         {
             //find the last child in the table so that the table is rectangular
-            int failY = area.getChildArea(stat.lastgood + 1).getTopology().getPosition().getY1(); //Y coordinate of the first failed node
+            int failY = area.getTopology().getPosition(area.getChildArea(stat.lastgood + 1)).getY1(); //Y coordinate of the first failed node
             for (int i = 0; i < stat.lastgood; i++)
             {
-                if (area.getChildArea(i).getTopology().getPosition().getY1() >= failY)
+                if (area.getTopology().getPosition(area.getChildArea(i)).getY1() >= failY)
                     return i-1; //last area above the failY
             }
             return stat.lastgood; //all areas above the failY
@@ -159,9 +159,9 @@ public class LayoutAnalyzer
         for (int i = startchild; i < nodes.size(); i++)
         {
             Area sub = nodes.get(i);
-            if (sub.getTopology().getPreviousOnLine() == null) //first nodes on the line
-            {
-                Rectangular gp = sub.getTopology().getPosition();
+            //if (sub.getTopology().getPreviousOnLine() == null) //TODO first nodes on the line
+            //{
+                Rectangular gp = area.getTopology().getPosition(sub);
                 int x1 = gp.getX1();
                 int y1 = gp.getY1();
                 if (stat.fitsCols(x1))
@@ -171,14 +171,14 @@ public class LayoutAnalyzer
                 }
                 else
                     break;
-            }
+            //}
         }
         //check the rows and styles
         ListInfo newstat = new ListInfo(area.getTopology().getTopologyHeight());
         for (int i = startchild; i < nodes.size(); i++)
         {
             Area sub = nodes.get(i);
-            Rectangular gp = sub.getTopology().getPosition();
+            Rectangular gp = area.getTopology().getPosition(sub);
             int x1 = gp.getX1();
             int y1 = gp.getY1();
             if (x1 == stat.x1) //main nodes (first column)

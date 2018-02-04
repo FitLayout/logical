@@ -154,9 +154,9 @@ public class LayoutSplitOperator extends BaseOperator
             {
                 region.add(area);
                 if (bounds == null)
-                    bounds = new Rectangular(area.getTopology().getPosition());
+                    bounds = new Rectangular(root.getTopology().getPosition(area));
                 else
-                    bounds.expandToEnclose(area.getTopology().getPosition());
+                    bounds.expandToEnclose(root.getTopology().getPosition(area));
             }
             
             Area grp = root.createSuperArea(bounds, region, "<area" + type +">");
