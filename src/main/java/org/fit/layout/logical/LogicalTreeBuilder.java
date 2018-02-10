@@ -76,8 +76,8 @@ public class LogicalTreeBuilder extends BaseLogicalTreeProvider
         {
             //System.out.println("Processing: " + src);
             LogicalAreaImpl newroot = new LogicalAreaImpl(src);
-            LogicalAreaImpl firstnode = recursiveCreateLogicalStructure(src.getChildArea(0));
-            newroot.add(firstnode);
+            LogicalAreaImpl firstnode = recursiveCreateLogicalStructure(src.getChildAt(0));
+            newroot.appendChild(firstnode);
             
             TreeCreationStatus curstat = new TreeCreationStatus();
             curstat.node = firstnode;
@@ -86,7 +86,7 @@ public class LogicalTreeBuilder extends BaseLogicalTreeProvider
             
             for (int i = 1; i < src.getChildCount(); i++)
             {
-                Area child = src.getChildArea(i);
+                Area child = src.getChildAt(i);
                 
                 if (!child.isSeparator()) //skip areas used for separation only
                 {
@@ -97,7 +97,7 @@ public class LogicalTreeBuilder extends BaseLogicalTreeProvider
                     
                     //find the appropriate parent
                     LogicalAreaImpl candParent = findParentForNode(curstat, substat, newroot);
-                    candParent.add(substat.node);
+                    candParent.appendChild(substat.node);
                     curstat.replaceWith(substat);
                 }
             }
@@ -105,7 +105,7 @@ public class LogicalTreeBuilder extends BaseLogicalTreeProvider
             //collapse the logical node if it is too simple (no internal structure)
             if (newroot.getLeafCount() == 1)
             {
-                newroot.setContentTree((LogicalAreaImpl) newroot.getChildArea(0));
+                newroot.setContentTree((LogicalAreaImpl) newroot.getChildAt(0));
                 newroot.removeAllChildren();
             }
             
@@ -134,7 +134,7 @@ public class LogicalTreeBuilder extends BaseLogicalTreeProvider
         {
             LogicalAreaImpl candParent;
             
-            LogicalAreaImpl cparent = (LogicalAreaImpl) curstat.node.getParentArea();
+            LogicalAreaImpl cparent = (LogicalAreaImpl) curstat.node.getParent();
             double plevel = getMarkedness(cparent);
             double pcur = Math.abs(substat.level - curstat.level); //price for going up (to the parent)
             double ppar = Math.abs(substat.level - plevel); //price of remaining here or going down
@@ -148,7 +148,7 @@ public class LogicalTreeBuilder extends BaseLogicalTreeProvider
                 }
                 else //if (c >= 0) //substat.level == clevel
                 {
-                    LogicalAreaImpl parent = (LogicalAreaImpl) curstat.node.getParentArea();
+                    LogicalAreaImpl parent = (LogicalAreaImpl) curstat.node.getParent();
                     if (parent != null)
                     {
                         candParent = parent;
@@ -163,9 +163,9 @@ public class LogicalTreeBuilder extends BaseLogicalTreeProvider
             else //parent is closer, search for the topmost applicable parent
             {
                 LogicalAreaImpl parent = curstat.node;
-                while (compareMarkedness(getMarkedness(parent), substat.level) <= 0 && parent.getParentArea() != null)
+                while (compareMarkedness(getMarkedness(parent), substat.level) <= 0 && parent.getParent() != null)
                 {
-                    parent = (LogicalAreaImpl) parent.getParentArea();
+                    parent = (LogicalAreaImpl) parent.getParent();
                 }
                 candParent = parent;
             }
@@ -209,7 +209,7 @@ public class LogicalTreeBuilder extends BaseLogicalTreeProvider
         root.addUserAttribute(new AreaAttributes(fa.getMarkedness(root), la.detectLayoutType(root)));
         //root.addAttribute(new AreaAttributes(fa.getMarkedness(root), LayoutAnalyzer.LayoutType.NORMAL));
         for (int i = 0; i < root.getChildCount(); i++)
-            computeAreaMarkedness(root.getChildArea(i));
+            computeAreaMarkedness(root.getChildAt(i));
     }
     
     

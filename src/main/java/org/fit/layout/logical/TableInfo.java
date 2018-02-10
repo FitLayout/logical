@@ -56,7 +56,7 @@ public class TableInfo
     
     public boolean putToGrid(Area area)
     {
-        Rectangular gp = area.getParentArea().getTopology().getPosition(area);
+        Rectangular gp = area.getParent().getTopology().getPosition(area);
         int x1 = gp.getX1();
         int x2 = gp.getX2();
         int y1 = gp.getY1();

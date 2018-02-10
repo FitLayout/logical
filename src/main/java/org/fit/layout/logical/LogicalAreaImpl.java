@@ -45,7 +45,7 @@ public class LogicalAreaImpl extends DefaultLogicalArea
         {
             for (int i = 0; i < getChildCount(); i++)
             {
-                final LogicalArea ret = getChildArea(i).findArea(area);
+                final LogicalArea ret = getChildAt(i).findArea(area);
                 if (ret != null)
                     return ret;
             }

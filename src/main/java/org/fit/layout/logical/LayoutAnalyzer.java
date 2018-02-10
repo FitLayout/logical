@@ -35,9 +35,9 @@ public class LayoutAnalyzer
     {
         if (area.getChildCount() > 1)
         {
-            if (isTable(area, area.getChildAreas(), 0))
+            if (isTable(area, area.getChildren(), 0))
                 return LayoutType.TABLE;
-            else if (isList(area, area.getChildAreas(), 0))
+            else if (isList(area, area.getChildren(), 0))
                 return LayoutType.LIST;
             else
                 return LayoutType.NORMAL;
@@ -70,10 +70,10 @@ public class LayoutAnalyzer
         else //not the whole area
         {
             //find the last child in the table so that the table is rectangular
-            int failY = area.getTopology().getPosition(area.getChildArea(stat.lastgood + 1)).getY1(); //Y coordinate of the first failed node
+            int failY = area.getTopology().getPosition(area.getChildAt(stat.lastgood + 1)).getY1(); //Y coordinate of the first failed node
             for (int i = 0; i < stat.lastgood; i++)
             {
-                if (area.getTopology().getPosition(area.getChildArea(i)).getY1() >= failY)
+                if (area.getTopology().getPosition(area.getChildAt(i)).getY1() >= failY)
                     return i-1; //last area above the failY
             }
             return stat.lastgood; //all areas above the failY

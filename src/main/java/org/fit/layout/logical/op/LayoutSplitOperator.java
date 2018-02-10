@@ -74,7 +74,7 @@ public class LayoutSplitOperator extends BaseOperator
     private void recursiveFindTables(Area root)
     {
         for (int i = 0; i < root.getChildCount(); i++)
-            recursiveFindTables((Area) root.getChildArea(i));
+            recursiveFindTables((Area) root.getChildAt(i));
         findTables(root);
     }
 
@@ -87,11 +87,11 @@ public class LayoutSplitOperator extends BaseOperator
         int i;
         for (i = 0; i < root.getChildCount(); i++)
         {
-            Area curchild = root.getChildArea(i);
+            Area curchild = root.getChildAt(i);
             if (curchild.getY1() >= lasty2) //line break detection
             {
                 System.out.println("Line break: " + curchild);
-                int tend = la.findTableEnd(root, root.getChildAreas(), i);
+                int tend = la.findTableEnd(root, root.getChildren(), i);
                 if (tend > i + 1) //found a table
                 {
                     System.out.println("found a table " + (i) + ".." + tend);
@@ -106,7 +106,7 @@ public class LayoutSplitOperator extends BaseOperator
                 }
                 else
                 {
-                    int lend = la.findListEnd(root, root.getChildAreas(), i);
+                    int lend = la.findListEnd(root, root.getChildren(), i);
                     if (lend > i + 2) //found a list
                     {
                         //close previous sequence (if any)
@@ -133,7 +133,7 @@ public class LayoutSplitOperator extends BaseOperator
             for (StructInfo part : parts)
             {
                 for (int ai = 0; ai < part.length(); ai++)
-                    part.areas[ai] = root.getChildArea(ai + part.start);  
+                    part.areas[ai] = root.getChildAt(ai + part.start);  
             }
             //create super areas
             for (StructInfo part : parts)
